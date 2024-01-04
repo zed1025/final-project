@@ -1,0 +1,13 @@
+---
+- name: Playbook to download and build qemu
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ansible_become_pass: "password"
+  tasks:
+    - name: Run build commands
+      become: yes
+      shell: |
+        cd {{ playbook_dir }}/../qemu
+        ./configure --target-list=x86_64-softmmu --enable-debug
+        make -j6

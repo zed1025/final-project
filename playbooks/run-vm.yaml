@@ -1,0 +1,34 @@
+---
+- name: Playbook to download and build qemu
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ansible_become_pass: "password"
+  tasks:
+    - name: Check if iso file exists in build dir
+      stat:
+        path: "{{ playbook_dir }}/../qemu/build/ubuntu-22.04.3-live-server-amd64.iso"
+      register: file_check_result
+    - name: Copy iso file if it doesn't exist
+      become: yes
+      copy:
+        src: "{{ playbook_dir }}/../ubuntu-22.04.3-live-server-amd64.iso" 
+        dest: "{{ playbook_dir }}/../qemu/build/ubuntu-22.04.3-live-server-amd64.iso"
+      when: not file_check_result.stat.exists
+    - name: Set file permissions to 777
+      become: yes
+      file:
+        path: "{{ playbook_dir }}/../qemu/build/ubuntu-22.04.3-live-server-amd64.iso"
+        mode: '0777'
+    - name: Command to create VM file and install OS -> Need only once
+      become: yes
+      shell: |
+        chmod 775 {{ playbook_dir }}/../qemu/build
+        cd {{ playbook_dir }}/../qemu/build
+        ./qemu-img create -f qcow2 test.qcow2 8G
+        x86_64-softmmu/qemu-system-x86_64 -m 1024 -enable-kvm -drive if=virtio,file=test.qcow2,cache=none -cdrom ubuntu-22.04.3-live-server-amd64.iso
+    - name: Run VM
+      become: yes
+      shell: |
+        cd {{ playbook_dir }}/../qemu/build
+        x86_64-softmmu/qemu-system-x86_64 -m 1024 -enable-kvm -drive if=virtio,file=test.qcow2,cache=none

@@ -1,0 +1,27 @@
+---
+- name: Playbook to download and build qemu
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ansible_become_pass: "password"
+  tasks:
+    - name: Check if /qemu directory exists in the project directory
+      stat:
+        path: "{{ playbook_dir }}/../qemu"
+      register: dir_check_result
+    - name: Git clone qemu repository
+      become: yes
+      git:
+        repo: https://gitlab.com/qemu-project/qemu.git
+        dest: "{{ playbook_dir }}/../qemu"
+      register: git_clone_result
+      when: not dir_check_result.stat.exists
+    - name: Run build commands
+      become: yes
+      shell: |
+        cd {{ playbook_dir }}/../qemu
+        mkdir -p bin/debug/native
+        cd bin/debug/native
+        ../../../configure --target-list=x86_64-softmmu --enable-debug
+        make -j6
+        cd ../../..

@@ -1,0 +1,66 @@
+---
+- name: Install Dependencies required to build QEMU from source
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ansible_become_pass: "password"
+  tasks:
+    - name: Check if packages are installed
+      become: yes
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - git-email
+        - libaio-dev 
+        - libbluetooth-dev 
+        - libcapstone-dev 
+        - libbrlapi-dev 
+        - libbz2-dev
+        - libcap-ng-dev 
+        - libcurl4-gnutls-dev 
+        - libgtk-3-dev
+        - libibverbs-dev 
+        - libjpeg8-dev 
+        - libncurses5-dev 
+        - libnuma-dev 
+        - librbd-dev 
+        - librdmacm-dev 
+        - libsasl2-dev 
+        - libsdl2-dev 
+        - libseccomp-dev 
+        - libsnappy-dev 
+        - libssh-dev 
+        - libvde-dev 
+        - libvdeplug-dev 
+        - libvte-2.91-dev 
+        - libxen-dev 
+        - liblzo2-dev 
+        - valgrind 
+        - xfslibs-dev 
+        - libnfs-dev 
+        - libiscsi-dev
+        - itstool
+        - flex 
+        - bison
+      register: result
+    - name: Display changes
+      debug:
+        var: result
+    # - name: Packages to be uninstalled using pip(need to reinstall later)
+    #   pip:
+    #     name: "{{ item }}"
+    #     state: absent
+    #   loop:
+    #     - meson
+    #   register: pip_uninstall_result
+    - name: Packages to be installed using pip
+      pip:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - meson
+      register: pip_install_result
+    - name: Display pip results
+      debug:
+        var: pip_install_result

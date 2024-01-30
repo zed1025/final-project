@@ -43,6 +43,9 @@
         - itstool
         - flex 
         - bison
+        - libfdt-dev
+        - libfdt1
+        - ninja-build
       register: result
     - name: Display changes
       debug:
@@ -60,6 +63,7 @@
         state: present
       loop:
         - meson
+        - sphinx==5.3.0
       register: pip_install_result
     - name: Display pip results
       debug:

@@ -8,6 +8,7 @@
     - name: Run build commands
       become: yes
       shell: |
-        cd {{ playbook_dir }}/../qemu
-        ./configure --target-list=x86_64-softmmu --enable-debug
+        cd {{ playbook_dir }}/../qemu/build
+        ../configure --target-list=x86_64-softmmu --enable-debug
         make -j6
+        cd ..
